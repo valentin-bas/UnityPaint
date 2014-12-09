@@ -15,9 +15,13 @@ public class TriangleFiller
 	private int y;
 	private int x;
 	private int maxX;
+	private Texture2D tex;
+	private bool isEnded;
 
-	public void Init(Vector2 p0, Vector2 p1)
+	public void Init(Vector2 p0, Vector2 p1, Texture2D texp)
 	{
+		isEnded = false;
+		tex = texp;
 		x1 = (int)p0.x;
 		x2 = (int)p1.x;
 		y1 = (int)p0.y;
@@ -46,21 +50,24 @@ public class TriangleFiller
 		x = (int)x1;
 	}
 
-	public void DrawLine(Texture2D tex)
+	public void DrawLine()
 	{
 		for (; x < maxX; x++)
 		{
-			_Step(tex, x);
+			_Step();
+			//Debug.Log("X: " + x);
 		}
+		isEnded = true;
 	}
 
-	public bool DrawLineStepY(Texture2D tex, out Vector2 actualPoint)
+	public bool DrawLineStepY(out Vector2 actualPoint)
 	{
 		int actualY = y;
+		int actualX = x;
 		for (; x < maxX; ++x)
 		{
-			_Step(tex, x);
-			if (y != actualY)
+			_Step();
+			//if (y != actualY)
 			{
 				if (steep)
 					actualPoint = new Vector2(y, x);
@@ -70,11 +77,15 @@ public class TriangleFiller
 				return false;
 			}
 		}
-		actualPoint = new Vector2(x, y);
+		if (steep)
+			actualPoint = new Vector2(y, x);
+		else
+			actualPoint = new Vector2(x, y);
+		isEnded = true;
 		return true;
 	}
 
-	private void _Step(Texture2D tex, int x)
+	private void _Step()
 	{
 		if (steep)
 			tex.SetPixel(y, x, Color.green);
@@ -86,6 +97,11 @@ public class TriangleFiller
 			y += ystep;
 			error += dx;
 		}
+	}
+
+	public bool IsEnded()
+	{
+		return isEnded;
 	}
 
 	public static void Swap<T>(ref T lhs, ref T rhs)
