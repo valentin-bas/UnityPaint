@@ -6,9 +6,9 @@ public class Raycast : MonoBehaviour
 	public bool PreviewTriangle = false;
 
 
-	private Texture2D _tex;
-	private Vector2 _oldTexPoint;
-	private bool _oldTexPointSetted;
+	private static Texture2D _tex;
+	private static Vector2 _oldTexPoint;
+	private static bool _oldTexPointSetted;
 
 	void Start()
 	{
@@ -97,23 +97,90 @@ public class Raycast : MonoBehaviour
 		}
 	}
 
-	private GameObject getGameObjectFromMesh(Transform parentTransform, Mesh mesh)
+	public static void ComputeHit(RaycastHit hit, int buttonClicked)
+	{
+		MeshCollider meshCollider = hit.collider as MeshCollider;
+		if (meshCollider == null || meshCollider.sharedMesh == null)
+			return;
+
+		Mesh mesh = meshCollider.sharedMesh;
+		Vector3[] vertices = mesh.vertices;
+		int[] triangles = mesh.triangles;
+		Transform hitTransform = hit.collider.transform;
+		Vector3 p0 = vertices[triangles[hit.triangleIndex * 3 + 0]];
+		Vector3 p1 = vertices[triangles[hit.triangleIndex * 3 + 1]];
+		Vector3 p2 = vertices[triangles[hit.triangleIndex * 3 + 2]];
+		Vector3 pt0 = hitTransform.TransformPoint(p0);
+		Vector3 pt1 = hitTransform.TransformPoint(p1);
+		Vector3 pt2 = hitTransform.TransformPoint(p2);
+
+		GameObject objHit = getGameObjectFromMesh(hitTransform, mesh);
+		if (objHit != null)
+		{
+			Vector2 uv0 = mesh.uv[triangles[hit.triangleIndex * 3 + 0]];
+			Vector2 uv1 = mesh.uv[triangles[hit.triangleIndex * 3 + 1]];
+			Vector2 uv2 = mesh.uv[triangles[hit.triangleIndex * 3 + 2]];
+
+			Texture2D texHit = objHit.renderer.sharedMaterial.GetTexture(0) as Texture2D;
+			if (texHit != null && buttonClicked == 0)
+			{
+				if (_tex == null)
+					_tex = texHit;// new Texture2D(texHit.width, texHit.height, texHit.format, texHit.mipmapCount != 0);
+				Vector2 uvHit = getInternalUV(hit.point, pt1, pt0, pt2, uv1, uv0, uv2);
+				if (_oldTexPointSetted == false)
+				{
+					_tex.SetPixel((int)(_tex.width * uvHit.x),
+									(int)(_tex.height * uvHit.y), Color.red);
+					_oldTexPoint = new Vector2(_tex.width * uvHit.x, _tex.height * uvHit.y);
+					_oldTexPointSetted = true;
+				}
+				else
+				{
+					Vector2 newTexPoint = new Vector2(_tex.width * uvHit.x, _tex.height * uvHit.y);
+					DrawHelper.DrawLine(_oldTexPoint, newTexPoint, _tex);
+					_oldTexPoint = newTexPoint;
+				}
+				_tex.Apply();
+				objHit.renderer.sharedMaterial.SetTexture(0, _tex);
+			}
+			else if (!Input.GetMouseButton(1))
+			{
+				_oldTexPointSetted = false;
+			}
+			if (texHit != null && buttonClicked == 2)
+			{
+				if (_tex == null)
+					_tex = new Texture2D(texHit.width, texHit.height, texHit.format, texHit.mipmapCount != 0);
+				Vector2 pTex0 = new Vector2(_tex.width * uv0.x, _tex.height * uv0.y);
+				Vector2 pTex1 = new Vector2(_tex.width * uv1.x, _tex.height * uv1.y);
+				Vector2 pTex2 = new Vector2(_tex.width * uv2.x, _tex.height * uv2.y);
+				//DrawHelper.DrawLine(pTex0, pTex1, _tex);
+				//DrawHelper.DrawLine(pTex1, pTex2, _tex);
+				//DrawHelper.DrawLine(pTex0, pTex2, _tex);
+				DrawHelper.FillTriangle(pTex0, pTex1, pTex2, _tex);
+				_tex.Apply();
+				objHit.renderer.sharedMaterial.SetTexture(0, _tex);
+			}
+		}
+	}
+
+	private static GameObject getGameObjectFromMesh(Transform parentTransform, Mesh mesh)
 	{
 		int childCount = parentTransform.childCount;
 		MeshCollider collider = parentTransform.gameObject.GetComponent<MeshCollider>();
-		if (collider != null && collider.mesh == mesh)
+		if (collider != null && collider.sharedMesh == mesh)
 			return parentTransform.gameObject;
 		for (int i = 0; i < childCount; ++i)
 		{
 			GameObject child = parentTransform.GetChild(i).gameObject;
 			MeshCollider childCollider = child.GetComponent<MeshCollider>();
-			if (childCollider != null && childCollider.mesh == mesh)
+			if (childCollider != null && childCollider.sharedMesh == mesh)
 				return child;
 		}
 		return null;
 	}
 
-	private Vector2 getInternalUV(Vector3 hitPoint,
+	private static Vector2 getInternalUV(Vector3 hitPoint,
 								  Vector3 p0, Vector3 p1, Vector3 p2,
 								  Vector2 uv0, Vector2 uv1, Vector2 uv2)
 	{
@@ -126,7 +193,7 @@ public class Raycast : MonoBehaviour
 		return uv;
 	}
 
-	float triangleArea(Vector3 p0, Vector3 p1, Vector3 p2)
+	private static float triangleArea(Vector3 p0, Vector3 p1, Vector3 p2)
 	{
 		float a = (p1 - p0).magnitude;
 		float b = (p2 - p1).magnitude;
