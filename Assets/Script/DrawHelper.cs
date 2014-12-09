@@ -3,15 +3,15 @@ using System.Collections;
 
 public class DrawHelper
 {
-	public static void DrawLine(Vector2 p0, Vector2 p1, Texture2D tex)
+	public static void DrawLine(Vector2 p0, Vector2 p1, Color color, Texture2D tex)
 	{
 		TriangleFiller filler = new TriangleFiller();
 
-		filler.Init(p0, p1, tex);
+		filler.Init(p0, p1, color, tex);
 		filler.DrawLine();
 	}
 
-	public static void FillTriangle(Vector2 p0, Vector2 p1, Vector2 p2, Texture2D tex)
+	public static void FillTriangle(Vector2 p0, Vector2 p1, Vector2 p2, Color color, Texture2D tex)
 	{
 		TriangleFiller filler0 = new TriangleFiller();
 		TriangleFiller filler1 = new TriangleFiller();
@@ -27,16 +27,15 @@ public class DrawHelper
 		if (p1.x > p2.x)
 			TriangleFiller.Swap(ref p1, ref p2);
 
-		filler0.Init(p0, p1, tex);
-		filler1.Init(p0, p2, tex);
-		filler2.Init(p1, p2, tex);
+		filler0.Init(p0, p1, color, tex);
+		filler1.Init(p0, p2, color, tex);
+		filler2.Init(p1, p2, color, tex);
 
 		while (filler0.IsEnded() == false && filler1.IsEnded() == false)
 		{
 			filler0.DrawLineStepY(out actualPoint0);
 			filler1.DrawLineStepY(out actualPoint1);
-			//Debug.Log("point 1 : " + actualPoint0 + "   point 2 : " + actualPoint1);
-			tmpLine.Init(actualPoint0, actualPoint1, tex);
+			tmpLine.Init(actualPoint0, actualPoint1, color, tex);
 			tmpLine.DrawLine();
 		}
 
@@ -49,21 +48,20 @@ public class DrawHelper
 		{
 			filler0.DrawLineStepY(out actualPoint0);
 			filler1.DrawLineStepY(out actualPoint1);
-			//Debug.Log("point 1 : " + actualPoint0 + "   point 2 : " + actualPoint1);
-			tmpLine.Init(actualPoint0, actualPoint1, tex);
+			tmpLine.Init(actualPoint0, actualPoint1, color, tex);
 			tmpLine.DrawLine();
 		}
 	}
 
-	public static void FillTriangleWithPropagate(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 start, Texture2D tex)
+	public static void FillTriangleWithPropagate(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 start, Color color, Texture2D tex)
 	{
 		TriangleFiller filler0 = new TriangleFiller();
 		TriangleFiller filler1 = new TriangleFiller();
 		TriangleFiller filler2 = new TriangleFiller();
 
-		filler0.Init(p0, p1, tex);
-		filler1.Init(p0, p2, tex);
-		filler2.Init(p1, p2, tex);
+		filler0.Init(p0, p1, color, tex);
+		filler1.Init(p0, p2, color, tex);
+		filler2.Init(p1, p2, color, tex);
 
 		filler0.DrawLine();
 		filler1.DrawLine();
@@ -72,7 +70,7 @@ public class DrawHelper
 		//Vector2 start = p0 + (((p1 - p0) / 2.0f) + ((p2 - p0) / 2.0f)) / 4.0f;
 		//Debug.Log("P0: " + p0 + "  P1: " + p1 + "  P2: " + p2 + "  Start: " + start);
 
-		PropagateInTexture((int)start.x, (int)start.y, Color.green, tex.GetPixel((int)start.x, (int)start.y), tex);
+		PropagateInTexture((int)start.x, (int)start.y, color, tex.GetPixel((int)start.x, (int)start.y), tex);
 	}
 
 	private static void PropagateInTexture(int x, int y, Color colorToFill, Color colorStart, Texture2D tex)

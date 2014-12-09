@@ -17,11 +17,13 @@ public class TriangleFiller
 	private int maxX;
 	private Texture2D tex;
 	private bool isEnded;
+	private Color color;
 
-	public void Init(Vector2 p0, Vector2 p1, Texture2D texp)
+	public void Init(Vector2 p0, Vector2 p1, Color colorp, Texture2D texp)
 	{
 		isEnded = false;
 		tex = texp;
+		color = colorp;
 		x1 = (int)p0.x;
 		x2 = (int)p1.x;
 		y1 = (int)p0.y;
@@ -62,20 +64,15 @@ public class TriangleFiller
 
 	public bool DrawLineStepY(out Vector2 actualPoint)
 	{
-		int actualY = y;
-		int actualX = x;
-		for (; x < maxX; ++x)
+		if (x < maxX)
 		{
 			_Step();
-			//if (y != actualY)
-			{
-				if (steep)
-					actualPoint = new Vector2(y, x);
-				else
-					actualPoint = new Vector2(x, y);
-				++x;
-				return false;
-			}
+			if (steep)
+				actualPoint = new Vector2(y, x);
+			else
+				actualPoint = new Vector2(x, y);
+			++x;
+			return false;
 		}
 		if (steep)
 			actualPoint = new Vector2(y, x);
@@ -88,9 +85,9 @@ public class TriangleFiller
 	private void _Step()
 	{
 		if (steep)
-			tex.SetPixel(y, x, Color.green);
+			tex.SetPixel(y, x, color);
 		else
-			tex.SetPixel(x, y, Color.green);
+			tex.SetPixel(x, y, color);
 		error -= dy;
 		if (error < 0)
 		{

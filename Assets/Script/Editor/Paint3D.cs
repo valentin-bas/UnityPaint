@@ -41,6 +41,7 @@ public class Paint3D : EditorWindow
 		{
 			GUILayout.Label("Base Settings", EditorStyles.boldLabel);
 			myString = EditorGUILayout.TextField("Text Field", myString);
+			Raycast.colorActive = EditorGUILayout.ColorField("Active Color", Raycast.colorActive);
 
 			groupEnabled = EditorGUILayout.BeginToggleGroup("Optional Settings", groupEnabled);
 			myBool = EditorGUILayout.Toggle("Toggle", myBool);
@@ -48,4 +49,5 @@ public class Paint3D : EditorWindow
 			EditorGUILayout.EndToggleGroup();
 		}
 	}
+
 }

@@ -5,13 +5,14 @@ public class Raycast : MonoBehaviour
 {
 	public bool PreviewTriangle = false;
 
-
+	public static Color colorActive;
 	private static Texture2D _tex;
 	private static Vector2 _oldTexPoint;
 	private static bool _oldTexPointSetted;
 
 	void Start()
 	{
+		colorActive = Color.black;
 		_tex = null;
 		_oldTexPointSetted = false;
 	}
@@ -67,7 +68,7 @@ public class Raycast : MonoBehaviour
 				else
 				{
 					Vector2 newTexPoint = new Vector2(_tex.width * uvHit.x, _tex.height * uvHit.y);
-					DrawHelper.DrawLine(_oldTexPoint, newTexPoint, _tex);
+					DrawHelper.DrawLine(_oldTexPoint, newTexPoint, colorActive, _tex);
 					_oldTexPoint = newTexPoint;
 				}
 				_tex.Apply();
@@ -90,7 +91,7 @@ public class Raycast : MonoBehaviour
 				//DrawHelper.DrawLine(pTex1, pTex2, _tex);
 				//DrawHelper.DrawLine(pTex0, pTex2, _tex);
 				//DrawHelper.FillTriangle(pTex0, pTex1, pTex2, _tex);
-				DrawHelper.FillTriangleWithPropagate(pTex0, pTex1, pTex2, phit, _tex);
+				DrawHelper.FillTriangleWithPropagate(pTex0, pTex1, pTex2, phit, colorActive, _tex);
 				_tex.Apply();
 				objHit.renderer.material.SetTexture(0, _tex);
 			}
@@ -137,7 +138,7 @@ public class Raycast : MonoBehaviour
 				else
 				{
 					Vector2 newTexPoint = new Vector2(_tex.width * uvHit.x, _tex.height * uvHit.y);
-					DrawHelper.DrawLine(_oldTexPoint, newTexPoint, _tex);
+					DrawHelper.DrawLine(_oldTexPoint, newTexPoint, colorActive, _tex);
 					_oldTexPoint = newTexPoint;
 				}
 				_tex.Apply();
@@ -157,7 +158,7 @@ public class Raycast : MonoBehaviour
 				//DrawHelper.DrawLine(pTex0, pTex1, _tex);
 				//DrawHelper.DrawLine(pTex1, pTex2, _tex);
 				//DrawHelper.DrawLine(pTex0, pTex2, _tex);
-				DrawHelper.FillTriangle(pTex0, pTex1, pTex2, _tex);
+				DrawHelper.FillTriangle(pTex0, pTex1, pTex2, colorActive, _tex);
 				_tex.Apply();
 				objHit.renderer.sharedMaterial.SetTexture(0, _tex);
 			}
