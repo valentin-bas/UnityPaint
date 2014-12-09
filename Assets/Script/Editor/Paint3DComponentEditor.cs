@@ -9,6 +9,7 @@ public class Paint3DComponentEditor : Editor
 	//private bool _enable;
 	private Vector3[] _pointsToDraw;
 	private RaycastHit _lastHit;
+	private GameObject _hittedGameObject;
 
 	private void CallbackFunction()
 	{
@@ -51,7 +52,7 @@ public class Paint3DComponentEditor : Editor
 	{
 		Event current = Event.current;
 		int controlID = GUIUtility.GetControlID(GetHashCode(), FocusType.Passive);
-	
+
 		switch (current.type)
 		{
 			case EventType.mouseMove:
@@ -60,14 +61,14 @@ public class Paint3DComponentEditor : Editor
 				_mousePos = Event.current.mousePosition;
 				_mousePos.y = Screen.height - (_mousePos.y + 35);
 				CallbackFunction();
-				Raycast.ComputeHit(_lastHit, Event.current.button);
+				_LauchRay();
 				current.Use();
 				break;
 
 			case EventType.mouseDown:
-				Raycast.ComputeHit(_lastHit, Event.current.button);
+				_LauchRay();
 				break;
-	
+
 			case EventType.layout:
 				HandleUtility.AddDefaultControl(controlID);
 				break;
@@ -81,6 +82,25 @@ public class Paint3DComponentEditor : Editor
 		}
 		if (GUI.changed)
 			EditorUtility.SetDirty(target);
+	}
+
+	private void _LauchRay()
+	{
+		Texture2D tex = Raycast.GetHittedTexture(_lastHit);
+		Paint3DComponent component = target as Paint3DComponent;
+		if (tex != null && component != null &&
+			(component.ActualTexture != tex || component.OldTexture == tex))
+		{
+			component.OldTexture = tex;
+			component.ActualTexture = new Texture2D(tex.width, tex.height);
+			component.ActualTexture.SetPixels(tex.GetPixels());
+			component.ActualTexture.Apply();
+			_hittedGameObject = Raycast.GetHittedMeshGameObject(_lastHit);
+			if (_hittedGameObject != null)
+				_hittedGameObject.renderer.sharedMaterial.SetTexture(0, component.ActualTexture);
+			component.AttachedGameObject = _hittedGameObject;
+		}
+		Raycast.ComputeHit(_lastHit, Event.current.button, component.ActualTexture);
 	}
 
 	void OnEnable()

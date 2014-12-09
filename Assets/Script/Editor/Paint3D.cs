@@ -4,11 +4,6 @@ using UnityEditor;
 
 public class Paint3D : EditorWindow
 {
-	string myString = "Hello World";
-	bool groupEnabled;
-	bool myBool = true;
-	float myFloat = 1.23f;
-
 	static GameObject _sceneObject;
 
 	// Add menu named "My Window" to the Window menu
@@ -39,14 +34,19 @@ public class Paint3D : EditorWindow
 
 		if (_sceneObject != null)
 		{
-			GUILayout.Label("Base Settings", EditorStyles.boldLabel);
-			myString = EditorGUILayout.TextField("Text Field", myString);
+			if (GUILayout.Button("Reset Texture"))
+				_sceneObject.GetComponent<Paint3DComponent>().ResetTexture();
+			if (GUILayout.Button("Save Texture"))
+				_sceneObject.GetComponent<Paint3DComponent>().SaveTexture();
+
+			GUILayout.Label("Settings", EditorStyles.boldLabel);
+			//myString = EditorGUILayout.TextField("Text Field", myString);
 			Raycast.colorActive = EditorGUILayout.ColorField("Active Color", Raycast.colorActive);
 
-			groupEnabled = EditorGUILayout.BeginToggleGroup("Optional Settings", groupEnabled);
-			myBool = EditorGUILayout.Toggle("Toggle", myBool);
-			myFloat = EditorGUILayout.Slider("Slider", myFloat, -3, 3);
-			EditorGUILayout.EndToggleGroup();
+			//groupEnabled = EditorGUILayout.BeginToggleGroup("Optional Settings", groupEnabled);
+			//myBool = EditorGUILayout.Toggle("Toggle", myBool);
+			//myFloat = EditorGUILayout.Slider("Slider", myFloat, -3, 3);
+			//EditorGUILayout.EndToggleGroup();
 		}
 	}
 
