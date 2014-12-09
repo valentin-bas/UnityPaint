@@ -49,12 +49,14 @@ public class Raycast : MonoBehaviour
 			Vector2 uv1 = mesh.uv[triangles[hit.triangleIndex * 3 + 1]];
 			Vector2 uv2 = mesh.uv[triangles[hit.triangleIndex * 3 + 2]];
 
+			Vector2 uvHit = new Vector2();
+
 			Texture2D texHit = objHit.renderer.material.GetTexture(0) as Texture2D;
 			if (texHit != null && Input.GetMouseButton(1))
 			{
 				if (_tex == null)
 					_tex = new Texture2D(texHit.width, texHit.height, texHit.format, texHit.mipmapCount != 0);
-				Vector2 uvHit = getInternalUV(hit.point, pt1, pt0, pt2, uv1, uv0, uv2);
+				uvHit = getInternalUV(hit.point, pt1, pt0, pt2, uv1, uv0, uv2);
 				if (_oldTexPointSetted == false)
 				{
 					_tex.SetPixel((int)(_tex.width * uvHit.x),
@@ -79,13 +81,16 @@ public class Raycast : MonoBehaviour
 			{
 				if (_tex == null)
 					_tex = new Texture2D(texHit.width, texHit.height, texHit.format, texHit.mipmapCount != 0);
+				uvHit = getInternalUV(hit.point, pt1, pt0, pt2, uv1, uv0, uv2);
 				Vector2 pTex0 = new Vector2(_tex.width * uv0.x, _tex.height * uv0.y);
 				Vector2 pTex1 = new Vector2(_tex.width * uv1.x, _tex.height * uv1.y);
 				Vector2 pTex2 = new Vector2(_tex.width * uv2.x, _tex.height * uv2.y);
+				Vector2 phit = new Vector2(_tex.width * uvHit.x, _tex.height * uvHit.y);
 				//DrawHelper.DrawLine(pTex0, pTex1, _tex);
 				//DrawHelper.DrawLine(pTex1, pTex2, _tex);
 				//DrawHelper.DrawLine(pTex0, pTex2, _tex);
-				DrawHelper.FillTriangle(pTex0, pTex1, pTex2, _tex);
+				//DrawHelper.FillTriangle(pTex0, pTex1, pTex2, _tex);
+				DrawHelper.FillTriangleWithPropagate(pTex0, pTex1, pTex2, phit, _tex);
 				_tex.Apply();
 				objHit.renderer.material.SetTexture(0, _tex);
 			}

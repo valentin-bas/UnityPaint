@@ -54,4 +54,35 @@ public class DrawHelper
 			tmpLine.DrawLine();
 		}
 	}
+
+	public static void FillTriangleWithPropagate(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 start, Texture2D tex)
+	{
+		TriangleFiller filler0 = new TriangleFiller();
+		TriangleFiller filler1 = new TriangleFiller();
+		TriangleFiller filler2 = new TriangleFiller();
+
+		filler0.Init(p0, p1, tex);
+		filler1.Init(p0, p2, tex);
+		filler2.Init(p1, p2, tex);
+
+		filler0.DrawLine();
+		filler1.DrawLine();
+		filler2.DrawLine();
+
+		//Vector2 start = p0 + (((p1 - p0) / 2.0f) + ((p2 - p0) / 2.0f)) / 4.0f;
+		//Debug.Log("P0: " + p0 + "  P1: " + p1 + "  P2: " + p2 + "  Start: " + start);
+
+		PropagateInTexture((int)start.x, (int)start.y, Color.green, tex.GetPixel((int)start.x, (int)start.y), tex);
+	}
+
+	private static void PropagateInTexture(int x, int y, Color colorToFill, Color colorStart, Texture2D tex)
+	{
+		if (tex.GetPixel(x, y) != colorStart)
+			return;
+		tex.SetPixel(x, y, colorToFill);
+		PropagateInTexture(x - 1, y, colorToFill, colorStart, tex);
+		PropagateInTexture(x + 1, y, colorToFill, colorStart, tex);
+		PropagateInTexture(x, y - 1, colorToFill, colorStart, tex);
+		PropagateInTexture(x, y + 1, colorToFill, colorStart, tex);
+	}
 }
