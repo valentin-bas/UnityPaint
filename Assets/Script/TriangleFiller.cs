@@ -57,7 +57,6 @@ public class TriangleFiller
 		for (; x < maxX; x++)
 		{
 			_Step();
-			//Debug.Log("X: " + x);
 		}
 		isEnded = true;
 	}
